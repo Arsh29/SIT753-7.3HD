@@ -120,7 +120,7 @@ pipeline {
                     }
                 }
 
-                echo "Production release successful: release-%BUILD_NUMBER%"
+                echo "Production release successful: release-${BUILD_NUMBER}"
             }
         }
 
