@@ -32,8 +32,14 @@ pipeline {
         }
         stage('Security') {
             steps {
-                bat 'docker --version'
-                bat 'docker ps'
+                echo 'Running Trivy security scan...'
+
+                bat '''
+        docker run --rm ^
+          -v "%CD%:/project" ^
+          -v "%USERPROFILE%\\.m2:/root/.m2" ^
+          aquasec/trivy:latest fs /project --scanners vuln
+        '''
             }
         }
     }
