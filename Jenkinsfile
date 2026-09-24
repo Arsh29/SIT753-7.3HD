@@ -32,11 +32,16 @@ pipeline {
         }
         stage('Security') {
             steps {
+                echo 'Preparing Maven dependencies for Trivy...'
+
+                bat 'mvn dependency:resolve -Dmaven.repo.local="%WORKSPACE%\\.m2"'
+
                 echo 'Running Trivy security scan...'
 
                 bat '''
         docker run --rm ^
-          -v "%CD%:/project" ^
+          -v "%WORKSPACE%:/project" ^
+          -v "%WORKSPACE%\\.m2:/root/.m2" ^
           aquasec/trivy:latest fs /project --scanners vuln
         '''
             }
