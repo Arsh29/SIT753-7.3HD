@@ -90,8 +90,37 @@ pipeline {
 
         stage('Release') {
             steps {
-                echo 'Release stage placeholder...'
-                echo 'Release will use Docker image %IMAGE_NAME%:%IMAGE_TAG%.'
+                echo 'Promoting tested image to production...'
+
+                bat '''
+        docker tag student-api:%BUILD_NUMBER% student-api:release-%BUILD_NUMBER%
+
+        docker rm -f student-api-production 2>NUL || exit /B 0
+
+        docker run -d ^
+          --name student-api-production ^
+          -p 8082:8099 ^
+          student-api:release-%BUILD_NUMBER%
+        '''
+
+                echo 'Waiting for production application...'
+
+                timeout(time: 60, unit: 'SECONDS') {
+                    waitUntil {
+                        script {
+                            def result = bat(
+                                script: 'powershell -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8082/api/students -TimeoutSec 5).StatusCode } catch { 0 }"',
+                                returnStdout: true
+                            ).readLines().last().trim()
+
+                            echo "Production API response: ${result}"
+
+                            return result == '200'
+                        }
+                    }
+                }
+
+                echo "Production release successful: release-%BUILD_NUMBER%"
             }
         }
 
