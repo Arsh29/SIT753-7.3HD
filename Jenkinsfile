@@ -56,8 +56,35 @@ pipeline {
 
         stage('Deploy') {
             steps {
-                echo 'Deploy stage placeholder...'
-                echo 'Docker image %IMAGE_NAME%:%IMAGE_TAG% is ready for deployment.'
+                echo 'Deploying Docker image...'
+
+                bat '''
+        docker rm -f student-api-container 2>NUL || exit /B 0
+
+        docker run -d ^
+          --name student-api-container ^
+          -p 8081:8080 ^
+          student-api:%BUILD_NUMBER%
+        '''
+
+                echo 'Waiting for application to start...'
+
+                timeout(time: 60, unit: 'SECONDS') {
+                    waitUntil {
+                        script {
+                            def result = bat(
+                                script: 'curl.exe -s -o NUL -w "%%{http_code}" http://localhost:8081/api/students',
+                                returnStdout: true
+                            ).trim()
+
+                            echo "API response: ${result}"
+
+                            return result == '200'
+                        }
+                    }
+                }
+
+                echo 'Deployment successful.'
             }
         }
 
