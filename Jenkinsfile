@@ -50,12 +50,7 @@ pipeline {
         stage('Security') {
             steps {
                 echo 'Running Trivy security scan on Docker image...'
-
-                bat '''
-                docker run --rm ^
-                  aquasec/trivy:latest image ^
-                  %IMAGE_NAME%:%IMAGE_TAG%
-                '''
+                bat 'trivy image --scanners vuln student-api:%BUILD_NUMBER%'
             }
         }
 
