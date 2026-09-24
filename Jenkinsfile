@@ -63,7 +63,7 @@ pipeline {
 
         docker run -d ^
           --name student-api-container ^
-          -p 8081:8080 ^
+          -p 8081:8099 ^
           student-api:%BUILD_NUMBER%
         '''
 
