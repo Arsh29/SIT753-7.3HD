@@ -2,9 +2,10 @@ pipeline {
     agent any
 
     tools {
-        jdk 'Java'
+        jdk 'Java25'
         maven 'Maven'
     }
+
     stages {
 
         stage('Build') {
@@ -20,11 +21,20 @@ pipeline {
                 bat 'mvn test'
             }
         }
+
+        stage('Code Quality') {
+            steps {
+                echo 'Running SonarQube analysis...'
+                withSonarQubeEnv('SonarQube') {
+                    bat 'mvn sonar:sonar -Dsonar.projectKey=sit753-student-api'
+                }
+            }
+        }
     }
 
     post {
         success {
-            echo 'Build and tests completed successfully!'
+            echo 'Build, tests and code quality analysis completed successfully!'
         }
 
         failure {
