@@ -1,9 +1,10 @@
+spring:
+  application:
+    name: assignment
 server:
   port: 8099
 
 spring:
-  application:
-    name: assignment
   datasource:
     url: jdbc:h2:mem:studentdb
     driverClassName: org.h2.Driver
