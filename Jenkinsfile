@@ -73,7 +73,7 @@ pipeline {
                     waitUntil {
                         script {
                             def result = bat(
-                                script: 'curl.exe -s -o NUL -w "%%{http_code}" http://localhost:8081/api/students',
+                                script: 'powershell -NoProfile -Command "(Invoke-WebRequest -UseBasicParsing http://localhost:8081/api/students).StatusCode"',
                                 returnStdout: true
                             ).trim()
 
