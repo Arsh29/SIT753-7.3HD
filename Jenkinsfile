@@ -75,7 +75,7 @@ pipeline {
                             def result = bat(
                                 script: 'powershell -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8081/api/students -TimeoutSec 5).StatusCode } catch { 0 }"',
                                 returnStdout: true
-                            ).trim()
+                            ).readLines().last().trim()
 
                             echo "API response: ${result}"
 
