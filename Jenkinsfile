@@ -73,15 +73,7 @@ pipeline {
                     waitUntil {
                         script {
                             def result = bat(
-                                script: '''
-                        powershell -NoProfile -Command ^
-                          "try { ^
-                              $r = Invoke-WebRequest -UseBasicParsing -Uri 'http://localhost:8081/api/students' -TimeoutSec 5; ^
-                              Write-Output $r.StatusCode ^
-                          } catch { ^
-                              Write-Output '000' ^
-                          }"
-                        ''',
+                                script: 'powershell -NoProfile -Command "try { (Invoke-WebRequest -UseBasicParsing -Uri http://localhost:8081/api/students -TimeoutSec 5).StatusCode } catch { 0 }"',
                                 returnStdout: true
                             ).trim()
 
