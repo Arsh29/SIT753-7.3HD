@@ -42,7 +42,7 @@ pipeline {
         docker run --rm ^
           -v "%WORKSPACE%:/project" ^
           -v "%WORKSPACE%\\.m2:/root/.m2" ^
-          aquasec/trivy:latest fs /project --scanners vuln
+          aquasec/trivy:latest fs /project --scanners vuln --offline-scan
         '''
             }
         }
