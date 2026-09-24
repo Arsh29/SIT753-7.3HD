@@ -6,18 +6,33 @@ pipeline {
         maven 'Maven'
     }
 
+    environment {
+        IMAGE_NAME = 'student-api'
+        IMAGE_TAG = "${BUILD_NUMBER}"
+    }
+
     stages {
+
+        stage('Checkout') {
+            steps {
+                echo 'Checking out source code...'
+                checkout scm
+            }
+        }
 
         stage('Build') {
             steps {
-                echo 'Building Spring Boot application...'
+                echo 'Building application JAR...'
                 bat 'mvn clean package -DskipTests'
+
+                echo 'Building Docker image...'
+                bat 'docker build -t %IMAGE_NAME%:%IMAGE_TAG% .'
             }
         }
 
         stage('Test') {
             steps {
-                echo 'Running JUnit tests...'
+                echo 'Running unit tests...'
                 bat 'mvn test'
             }
         }
@@ -25,40 +40,59 @@ pipeline {
         stage('Code Quality') {
             steps {
                 echo 'Running SonarQube analysis...'
+
                 withSonarQubeEnv('SonarQube') {
                     bat 'mvn org.sonarsource.scanner.maven:sonar-maven-plugin:5.1.0.4751:sonar -Dsonar.projectKey=sit753-student-api'
                 }
             }
         }
+
         stage('Security') {
             steps {
-                echo 'Preparing Maven dependencies for Trivy...'
-
-                bat 'mvn dependency:resolve -Dmaven.repo.local="%WORKSPACE%\\.m2"'
-
-                echo 'Running Trivy security scan...'
+                echo 'Running Trivy security scan on Docker image...'
 
                 bat '''
-        docker run --rm ^
-          -v "%WORKSPACE%:/project" ^
-          -v "%WORKSPACE%\\.m2:/root/.m2" ^
-          aquasec/trivy:latest fs /project --scanners vuln --offline-scan
-        '''
+                docker run --rm ^
+                  aquasec/trivy:latest image ^
+                  %IMAGE_NAME%:%IMAGE_TAG%
+                '''
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                echo 'Deploy stage placeholder...'
+                echo 'Docker image %IMAGE_NAME%:%IMAGE_TAG% is ready for deployment.'
+            }
+        }
+
+        stage('Release') {
+            steps {
+                echo 'Release stage placeholder...'
+                echo 'Release will use Docker image %IMAGE_NAME%:%IMAGE_TAG%.'
+            }
+        }
+
+        stage('Monitoring') {
+            steps {
+                echo 'Monitoring stage placeholder...'
+                echo 'Application monitoring will be configured here.'
             }
         }
     }
 
     post {
         success {
-            echo 'Build, tests and code quality analysis completed successfully!'
+            echo 'Pipeline completed successfully.'
         }
 
         failure {
-            echo 'Pipeline failed. Check the console output.'
+            echo 'Pipeline failed. Check the stage logs above.'
         }
 
         always {
-            echo 'Pipeline execution finished.'
+            echo "Build number: ${BUILD_NUMBER}"
+            echo "Docker image: ${IMAGE_NAME}:${IMAGE_TAG}"
         }
     }
 }
