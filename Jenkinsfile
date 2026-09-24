@@ -37,7 +37,6 @@ pipeline {
                 bat '''
         docker run --rm ^
           -v "%CD%:/project" ^
-          -v "%USERPROFILE%\\.m2:/root/.m2" ^
           aquasec/trivy:latest fs /project --scanners vuln
         '''
             }
