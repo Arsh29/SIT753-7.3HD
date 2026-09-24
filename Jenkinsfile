@@ -30,6 +30,12 @@ pipeline {
                 }
             }
         }
+        stage('Security') {
+            steps {
+                bat 'docker --version'
+                bat 'docker ps'
+            }
+        }
     }
 
     post {
