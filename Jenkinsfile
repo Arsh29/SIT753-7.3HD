@@ -126,8 +126,20 @@ pipeline {
 
         stage('Monitoring') {
             steps {
-                echo 'Monitoring stage placeholder...'
-                echo 'Application monitoring will be configured here.'
+                echo 'Starting Prometheus monitoring...'
+
+                bat '''
+        docker rm -f prometheus 2>NUL || exit /B 0
+
+        docker run -d ^
+          --name prometheus ^
+          --network student-network ^
+          -p 9090:9090 ^
+          -v "%WORKSPACE%\\prometheus.yml:/etc/prometheus/prometheus.yml" ^
+          prom/prometheus
+        '''
+
+                echo 'Prometheus started.'
             }
         }
     }
