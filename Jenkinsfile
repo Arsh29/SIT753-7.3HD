@@ -99,6 +99,7 @@ pipeline {
 
         docker run -d ^
           --name student-api-production ^
+          --network student-network ^
           -p 8082:8099 ^
           student-api:release-%BUILD_NUMBER%
         '''
